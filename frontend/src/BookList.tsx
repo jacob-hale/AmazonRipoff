@@ -28,85 +28,120 @@ function BookList() {
   }, [pageSize, pageNum, totalItems, sortByTitle]);
 
   return (
-    <>
-      <h1>Book List</h1>
-      <br />
+    <div className="container py-4">
+      <div className="mx-auto" style={{ maxWidth: '960px' }}>
+        <h1 className="display-5 fw-bold mb-2" style={{ color: 'black' }}>
+          Book List
+        </h1>
+        <p className="text-muted mb-4">
+          Browse {totalItems} books from the catalog
+        </p>
 
-      {books.map((b) => (
-        <div key={b.bookID}>
-          <h2>{b.title}</h2>
-          <ul>
-            <li>
-              <strong>Author:</strong> {b.author}
+        {books.map((b) => (
+          <div key={b.bookID} className="card shadow-sm border-0 mb-3">
+            <div className="card-body">
+              <h2 className="h4 card-title mb-3 d-flex justify-content-between align-items-center">
+                <span>{b.title}</span>
+                <span className="badge text-bg-primary">
+                  ${b.price.toFixed(2)}
+                </span>
+              </h2>
+              <ul className="list-group list-group-flush">
+                <li className="list-group-item px-0">
+                  <strong>Author:</strong> {b.author}
+                </li>
+                <li className="list-group-item px-0">
+                  <strong>Publisher:</strong> {b.publisher}
+                </li>
+                <li className="list-group-item px-0">
+                  <strong>ISBN:</strong> {b.isbn}
+                </li>
+                <li className="list-group-item px-0">
+                  <strong>Classification:</strong> {b.classification}
+                </li>
+                <li className="list-group-item px-0">
+                  <strong>Category:</strong> {b.category}
+                </li>
+                <li className="list-group-item px-0">
+                  <strong>Page Count:</strong> {b.pageCount}
+                </li>
+              </ul>
+            </div>
+          </div>
+        ))}
+
+        <nav aria-label="Book pagination" className="my-4">
+          <ul className="pagination justify-content-center flex-wrap gap-1">
+            <li className={`page-item ${pageNum === 1 ? 'disabled' : ''}`}>
+              <button
+                className="page-link rounded"
+                disabled={pageNum === 1}
+                onClick={() => setPageNum(pageNum - 1)}
+              >
+                Previous
+              </button>
             </li>
-            <li>
-              <strong>Publisher:</strong> {b.publisher}
-            </li>
-            <li>
-              <strong>ISBN:</strong> {b.isbn}
-            </li>
-            <li>
-              <strong>Classification:</strong> {b.classification}
-            </li>
-            <li>
-              <strong>Category:</strong> {b.category}
-            </li>
-            <li>
-              <strong>Page Count:</strong> {b.pageCount}
-            </li>
-            <li>
-              <strong>Price:</strong> ${b.price.toFixed(2)}
+            {[...Array(totalPages)].map((_, index) => (
+              <li
+                key={index + 1}
+                className={`page-item ${pageNum === index + 1 ? 'active' : ''}`}
+              >
+                <button
+                  className="page-link rounded"
+                  onClick={() => setPageNum(index + 1)}
+                  disabled={pageNum === index + 1}
+                >
+                  {index + 1}
+                </button>
+              </li>
+            ))}
+            <li
+              className={`page-item ${pageNum === totalPages ? 'disabled' : ''}`}
+            >
+              <button
+                className="page-link rounded"
+                disabled={pageNum === totalPages}
+                onClick={() => setPageNum(pageNum + 1)}
+              >
+                Next
+              </button>
             </li>
           </ul>
+        </nav>
+
+        <div className="card border-0 shadow-sm">
+          <div className="card-body d-flex flex-column flex-md-row align-items-md-center gap-3">
+            <label className="form-label mb-0 d-flex flex-column gap-1">
+              <span className="small text-muted">Results per page</span>
+              <select
+                className="form-select"
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(Number(e.target.value));
+                  setPageNum(1); // Reset to first page when page size changes
+                }}
+              >
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+              </select>
+            </label>
+            <label className="form-check form-switch m-0 ms-md-2">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                checked={sortByTitle}
+                onChange={(e) => {
+                  setSortByTitle(e.target.checked);
+                  setPageNum(1); // Reset to page 1 when sorting changes
+                }}
+              />
+              <span className="form-check-label">Sort by Title</span>
+            </label>
+          </div>
         </div>
-      ))}
-
-      <button disabled={pageNum === 1} onClick={() => setPageNum(pageNum - 1)}>
-        Previous
-      </button>
-      {[...Array(totalPages)].map((_, index) => (
-        <button
-          key={index + 1}
-          onClick={() => setPageNum(index + 1)}
-          disabled={pageNum === index + 1}
-        >
-          {index + 1}
-        </button>
-      ))}
-
-      <button
-        disabled={pageNum === totalPages}
-        onClick={() => setPageNum(pageNum + 1)}
-      >
-        Next
-      </button>
-      <br />
-      <label>
-        Results per page:
-        <select
-          value={pageSize}
-          onChange={(e) => {
-            setPageSize(Number(e.target.value));
-            setPageNum(1); // Reset to first page when page size changes
-          }}
-        >
-          <option value="5">5</option>
-          <option value="10">10</option>
-          <option value="20">20</option>
-        </select>
-      </label>
-      <label style={{ marginLeft: '20px' }}>
-  Sort by Title:
-  <input
-    type="checkbox"
-    checked={sortByTitle}
-    onChange={(e) => {
-      setSortByTitle(e.target.checked);
-      setPageNum(1); // Reset to page 1 when sorting changes
-    }}
-  />
-</label>
-    </>
+      </div>
+    </div>
   );
 }
 
