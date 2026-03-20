@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { Book } from './types/Books';
 
 function BookList() {
+  // Local UI/query state used to request and render paged book results.
   const [books, setBooks] = useState<Book[]>([]);
   const [pageSize, setPageSize] = useState<number>(5);
   const [pageNum, setPageNum] = useState<number>(1);
@@ -10,6 +11,7 @@ function BookList() {
   const [sortByTitle, setSortByTitle] = useState<boolean>(false);
 
   useEffect(() => {
+    // Refetch whenever paging/sorting inputs change so the view stays in sync.
     const fetchBooks = async () => {
       try {
         const response = await fetch(
@@ -37,6 +39,7 @@ function BookList() {
           Browse {totalItems} books from the catalog
         </p>
 
+        {/* Render each book as a Bootstrap card for quick scanning. */}
         {books.map((b) => (
           <div key={b.bookID} className="card shadow-sm border-0 mb-3">
             <div className="card-body">
@@ -70,6 +73,7 @@ function BookList() {
           </div>
         ))}
 
+        {/* Pagination controls map 1..totalPages into numbered buttons. */}
         <nav aria-label="Book pagination" className="my-4">
           <ul className="pagination justify-content-center flex-wrap gap-1">
             <li className={`page-item ${pageNum === 1 ? 'disabled' : ''}`}>
@@ -109,6 +113,7 @@ function BookList() {
           </ul>
         </nav>
 
+        {/* Query controls that drive server-side filtering and page size. */}
         <div className="card border-0 shadow-sm">
           <div className="card-body d-flex flex-column flex-md-row align-items-md-center gap-3">
             <label className="form-label mb-0 d-flex flex-column gap-1">

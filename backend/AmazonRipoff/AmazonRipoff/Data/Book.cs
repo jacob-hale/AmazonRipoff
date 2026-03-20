@@ -2,6 +2,7 @@
 
 namespace AmazonRipoff.Data
 {
+    // Entity mapped to the bookstore books table.
     public class Book
     {
         [Key]
