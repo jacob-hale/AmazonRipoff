@@ -1,0 +1,6 @@
+@AmazonRipoff_HostAddress = http://localhost:5173
+
+GET {{AmazonRipoff_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
