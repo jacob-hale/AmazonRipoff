@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using AmazonRipoff.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -5,6 +8,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+builder.Services.AddDbContext<BookStoreDbContext>(options => 
+    options.UseSqlite(builder.Configuration.GetConnectionString("BookStoreConnection")));
 
 var app = builder.Build();
 

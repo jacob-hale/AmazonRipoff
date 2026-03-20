@@ -19,8 +19,6 @@ namespace AmazonRipoff.Data
         [Required]
         public string Category { get; set; }
         [Required]
-        public string Categroy { get; set; }
-        [Required]
         public int PageCount { get; set; }
         [Required]
         public float Price { get; set; }

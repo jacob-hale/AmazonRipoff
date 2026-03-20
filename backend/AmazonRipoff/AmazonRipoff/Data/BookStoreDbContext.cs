@@ -5,12 +5,11 @@ namespace AmazonRipoff.Data
 {
     public class BookStoreDbContext : DbContext
     {
-        public class BookDbContext : DbContext
-        {
-            public BookDbContext(DbContextOptions<BookDbContext> options) : base(options)
+        
+            public BookStoreDbContext(DbContextOptions<BookStoreDbContext> options) : base(options)
             {
             }
             public DbSet<Book> Books { get; set; }
         }
-    }
+    
 }
