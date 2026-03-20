@@ -17,10 +17,21 @@ namespace AmazonRipoff.Controllers
         }
 
         [HttpGet("AllBooks")]
-        public IEnumerable<Book> GetBooks() 
+        public BookListData GetBooks(int pageSize = 5, int pageNum = 1) 
         { 
-            var x = _context.Books.ToList();
-            return x;
+            var x = _context.Books
+                .Skip((pageNum - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var totalNumBooks = _context.Books.Count();
+
+            BookListData bookListData = new BookListData()
+            {
+                Books = x,
+                TotalNumBooks = totalNumBooks
+            };
+            return bookListData;
 
         }
 
