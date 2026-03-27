@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { Book } from './types/Books';
+import type { Book } from '../types/Books';
 
 function BookList({ selectedCategories }: { selectedCategories: string[] }) {
   // Local UI/query state used to request and render paged book results.
@@ -13,8 +13,8 @@ function BookList({ selectedCategories }: { selectedCategories: string[] }) {
   useEffect(() => {
     // Refetch whenever paging/sorting inputs change so the view stays in sync.
     const categoryParams = selectedCategories
-        .map((cat) => `categories=${encodeURIComponent(cat)}`)
-        .join('&');
+      .map((cat) => `categories=${encodeURIComponent(cat)}`)
+      .join('&');
 
     const fetchBooks = async () => {
       try {
