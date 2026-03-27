@@ -19,10 +19,16 @@ namespace AmazonRipoff.Controllers
 
         // Returns a single page of books plus the total count for pagination UI.
         [HttpGet("AllBooks")]
-        public BookListData GetBooks(int pageSize = 5, int pageNum = 1, bool sortByTitle = false)
+        public BookListData GetBooks(int pageSize = 5, int pageNum = 1, bool sortByTitle = false, [FromQuery] List<string>? categories = null)
         {
             // Start with the full query
             var query = _context.Books.AsQueryable();
+
+            // Apply category filtering if categories are provided. This is done before sorting and pagination to ensure we are working with the correct subset of data.
+            if (categories != null && categories.Any())
+            {
+                query = query.Where(b => categories.Contains(b.Category));
+            }
 
             // Apply sorting BEFORE pagination
             if (sortByTitle)
@@ -49,6 +55,16 @@ namespace AmazonRipoff.Controllers
                 Books = x,
                 TotalNumBooks = totalNumBooks
             };
+        }
+
+        [HttpGet("GetBookCategories")]
+        public IActionResult GetBookCategories()
+        {
+            var categories = _context.Books
+                .Select(b => b.Category)
+                .Distinct()
+                .ToList();
+            return Ok(categories);
         }
 
     }
