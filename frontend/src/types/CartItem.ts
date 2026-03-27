@@ -1,5 +1,7 @@
 export interface CartItem {
     bookId: number;
     title: string;
-    price: number;
+    unitPrice: number;
+    quantity: number;
+    lineTotal: number;
 }

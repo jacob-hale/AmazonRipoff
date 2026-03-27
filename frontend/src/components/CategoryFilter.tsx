@@ -45,6 +45,7 @@ function CategoryFilter({
               id={c}
               value={c}
               className="category-checkbox"
+              checked={selectedCategories.includes(c)}
               onChange={handleCheckboxChange}
             />
             <label htmlFor={c}>{c}</label>

@@ -1,14 +1,67 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { Book } from '../types/Books';
+import { useCart } from '../context/CartContext';
 
-function BookList({ selectedCategories }: { selectedCategories: string[] }) {
+const LIST_STATE_STORAGE_KEY = 'amazonRipoffBookListState';
+
+function BookList({
+  selectedCategories,
+  sortByTitle,
+  pageSize,
+}: {
+  selectedCategories: string[];
+  sortByTitle: boolean;
+  pageSize: number;
+}) {
+  const navigate = useNavigate();
+  const { addToCart } = useCart();
+
+  const getStoredState = () => {
+    if (typeof window === 'undefined') {
+      return null;
+    }
+
+    const storedState = window.sessionStorage.getItem(LIST_STATE_STORAGE_KEY);
+    if (!storedState) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(storedState) as {
+        pageNum?: number;
+      };
+    } catch {
+      return null;
+    }
+  };
+
+  const initialState = getStoredState();
+
   // Local UI/query state used to request and render paged book results.
   const [books, setBooks] = useState<Book[]>([]);
-  const [pageSize, setPageSize] = useState<number>(5);
-  const [pageNum, setPageNum] = useState<number>(1);
+  const [pageNum, setPageNum] = useState<number>(initialState?.pageNum ?? 1);
+  const [previousPageSize, setPreviousPageSize] = useState<number>(pageSize);
   const [totalItems, setTotalItems] = useState<number>(0);
   const [totalPages, setTotalPages] = useState<number>(0);
-  const [sortByTitle, setSortByTitle] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (pageSize !== previousPageSize) {
+      setPageNum(1);
+      setPreviousPageSize(pageSize);
+    }
+  }, [pageSize, previousPageSize]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    window.sessionStorage.setItem(
+      LIST_STATE_STORAGE_KEY,
+      JSON.stringify({ pageNum })
+    );
+  }, [pageNum]);
 
   useEffect(() => {
     // Refetch whenever paging/sorting inputs change so the view stays in sync.
@@ -31,7 +84,17 @@ function BookList({ selectedCategories }: { selectedCategories: string[] }) {
     };
 
     fetchBooks();
-  }, [pageSize, pageNum, totalItems, sortByTitle, selectedCategories]);
+  }, [pageSize, pageNum, sortByTitle, selectedCategories]);
+
+  const handleAddToCart = (book: Book) => {
+    addToCart({
+      bookId: book.bookID,
+      title: book.title,
+      unitPrice: book.price,
+    });
+
+    navigate(`/confirm-add/${book.bookID}`);
+  };
 
   return (
     <div className="container py-4">
@@ -73,6 +136,14 @@ function BookList({ selectedCategories }: { selectedCategories: string[] }) {
                   <strong>Page Count:</strong> {b.pageCount}
                 </li>
               </ul>
+              <div className="mt-3 text-end">
+                <button
+                  className="btn btn-success"
+                  onClick={() => handleAddToCart(b)}
+                >
+                  Add to Cart
+                </button>
+              </div>
             </div>
           </div>
         ))}
@@ -116,39 +187,6 @@ function BookList({ selectedCategories }: { selectedCategories: string[] }) {
             </li>
           </ul>
         </nav>
-
-        {/* Query controls that drive server-side filtering and page size. */}
-        <div className="card border-0 shadow-sm">
-          <div className="card-body d-flex flex-column flex-md-row align-items-md-center gap-3">
-            <label className="form-label mb-0 d-flex flex-column gap-1">
-              <span className="small text-muted">Results per page</span>
-              <select
-                className="form-select"
-                value={pageSize}
-                onChange={(e) => {
-                  setPageSize(Number(e.target.value));
-                  setPageNum(1); // Reset to first page when page size changes
-                }}
-              >
-                <option value="5">5</option>
-                <option value="10">10</option>
-                <option value="20">20</option>
-              </select>
-            </label>
-            <label className="form-check form-switch m-0 ms-md-2">
-              <input
-                className="form-check-input"
-                type="checkbox"
-                checked={sortByTitle}
-                onChange={(e) => {
-                  setSortByTitle(e.target.checked);
-                  setPageNum(1); // Reset to page 1 when sorting changes
-                }}
-              />
-              <span className="form-check-label">Sort by Title</span>
-            </label>
-          </div>
-        </div>
       </div>
     </div>
   );
