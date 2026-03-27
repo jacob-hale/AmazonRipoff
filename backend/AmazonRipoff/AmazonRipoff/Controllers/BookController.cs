@@ -40,6 +40,7 @@ namespace AmazonRipoff.Controllers
                 // It is best practice to have a default sort (like ID) for stable pagination
                 query = query.OrderBy(b => b.BookID);
             }
+            var totalNumBooks = query.Count();
 
             var x = query
                 // Page index is 1-based from the client.
@@ -48,7 +49,6 @@ namespace AmazonRipoff.Controllers
                 .ToList();
 
             // Total rows is returned separately so the client can compute total pages.
-            var totalNumBooks = _context.Books.Count();
 
             return new BookListData()
             {
