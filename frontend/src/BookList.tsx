@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { Book } from './types/Books';
 
-function BookList() {
+function BookList({ selectedCategories }: { selectedCategories: string[] }) {
   // Local UI/query state used to request and render paged book results.
   const [books, setBooks] = useState<Book[]>([]);
   const [pageSize, setPageSize] = useState<number>(5);
@@ -12,22 +12,26 @@ function BookList() {
 
   useEffect(() => {
     // Refetch whenever paging/sorting inputs change so the view stays in sync.
+    const categoryParams = selectedCategories
+        .map((cat) => `categories=${encodeURIComponent(cat)}`)
+        .join('&');
+
     const fetchBooks = async () => {
       try {
         const response = await fetch(
-          `https://localhost:5000/Book/AllBooks?pageSize=${pageSize}&pageNum=${pageNum}&sortByTitle=${sortByTitle}`
+          `https://localhost:5000/Book/AllBooks?pageSize=${pageSize}&pageNum=${pageNum}&sortByTitle=${sortByTitle}${selectedCategories.length ? `&${categoryParams}` : ''}`
         );
         const data = await response.json();
         setBooks(data.books);
         setTotalItems(data.totalNumBooks);
         setTotalPages(Math.ceil(data.totalNumBooks / pageSize));
       } catch (error) {
-        console.error('Error fetching projects:', error);
+        console.error('Error fetching books:', error);
       }
     };
 
     fetchBooks();
-  }, [pageSize, pageNum, totalItems, sortByTitle]);
+  }, [pageSize, pageNum, totalItems, sortByTitle, selectedCategories]);
 
   return (
     <div className="container py-4">
