@@ -1,6 +1,7 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 
+// Confirmation page shown after adding an item when routed directly here.
 function ConfirmAddToCart() {
   const navigate = useNavigate();
   const { bookId } = useParams();
@@ -9,6 +10,7 @@ function ConfirmAddToCart() {
   const title = cartItem?.title ?? 'Book';
 
   const handleContinueShopping = () => {
+    // Prefer browser history so users return to their previous list state.
     if (window.history.length > 1) {
       navigate(-1);
       return;

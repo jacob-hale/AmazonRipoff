@@ -1,22 +1,24 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import type { Book } from '../types/Books';
 import { useCart } from '../context/CartContext';
 
 const LIST_STATE_STORAGE_KEY = 'amazonRipoffBookListState';
 
+// BookList handles catalog fetching, pagination, and add-to-cart actions.
 function BookList({
   selectedCategories,
   sortByTitle,
   pageSize,
+  onAddToCart,
 }: {
   selectedCategories: string[];
   sortByTitle: boolean;
   pageSize: number;
+  onAddToCart: (title: string) => void;
 }) {
-  const navigate = useNavigate();
   const { addToCart } = useCart();
 
+  // Restore the last viewed page so users can keep browsing where they left off.
   const getStoredState = () => {
     if (typeof window === 'undefined') {
       return null;
@@ -46,6 +48,7 @@ function BookList({
   const [totalPages, setTotalPages] = useState<number>(0);
 
   useEffect(() => {
+    // Reset paging when the requested page size changes.
     if (pageSize !== previousPageSize) {
       setPageNum(1);
       setPreviousPageSize(pageSize);
@@ -53,6 +56,7 @@ function BookList({
   }, [pageSize, previousPageSize]);
 
   useEffect(() => {
+    // Persist current page number for smoother return navigation.
     if (typeof window === 'undefined') {
       return;
     }
@@ -87,28 +91,30 @@ function BookList({
   }, [pageSize, pageNum, sortByTitle, selectedCategories]);
 
   const handleAddToCart = (book: Book) => {
+    // Add one copy and notify the page so it can show feedback.
     addToCart({
       bookId: book.bookID,
       title: book.title,
       unitPrice: book.price,
     });
-
-    navigate(`/confirm-add/${book.bookID}`);
+    onAddToCart(book.title);
   };
 
   return (
-    <div className="container py-4">
-      <div className="mx-auto" style={{ maxWidth: '960px' }}>
+    <div className="row g-3">
+      <div className="col-12">
         <h1 className="display-5 fw-bold mb-2" style={{ color: 'black' }}>
           Book List
         </h1>
         <p className="text-muted mb-4">
           Browse {totalItems} books from the catalog
         </p>
+      </div>
 
-        {/* Render each book as a Bootstrap card for quick scanning. */}
-        {books.map((b) => (
-          <div key={b.bookID} className="card shadow-sm border-0 mb-3">
+      {/* Render each book as a Bootstrap card for quick scanning. */}
+      {books.map((b) => (
+        <div key={b.bookID} className="col-12">
+          <div className="card shadow-sm border-0">
             <div className="card-body">
               <h2 className="h4 card-title mb-3 d-flex justify-content-between align-items-center">
                 <span>{b.title}</span>
@@ -146,10 +152,12 @@ function BookList({
               </div>
             </div>
           </div>
-        ))}
+        </div>
+      ))}
 
-        {/* Pagination controls map 1..totalPages into numbered buttons. */}
-        <nav aria-label="Book pagination" className="my-4">
+      {/* Pagination controls map 1..totalPages into numbered buttons. */}
+      <div className="col-12">
+        <nav aria-label="Book pagination" className="my-2">
           <ul className="pagination justify-content-center flex-wrap gap-1">
             <li className={`page-item ${pageNum === 1 ? 'disabled' : ''}`}>
               <button

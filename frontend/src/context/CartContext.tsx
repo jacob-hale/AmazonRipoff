@@ -20,6 +20,7 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
+// CartProvider centralizes cart state, totals, and session persistence.
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cart, setCart] = useState<CartItem[]>(() => {
     if (typeof window === 'undefined') {
@@ -40,6 +41,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   });
 
   useEffect(() => {
+    // Keep cart synced to sessionStorage for the current browser session.
     if (typeof window === 'undefined') {
       return;
     }
@@ -50,6 +52,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const addToCart = (
     item: Pick<CartItem, 'bookId' | 'title' | 'unitPrice'>
   ) => {
+    // Add a new row or increment quantity for existing books.
     setCart((prevCart) => {
       const existingItem = prevCart.find((c) => c.bookId === item.bookId);
 
@@ -79,6 +82,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const removeFromCart = (bookId: number) => {
+    // Remove one quantity at a time; drop row when quantity reaches zero.
     setCart((prevCart) =>
       prevCart
         .map((c) => {
@@ -125,6 +129,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 };
 
 export const useCart = () => {
+  // Custom hook for consuming cart state safely within the provider.
   const context = useContext(CartContext);
   if (!context) {
     throw new Error('useCart must be used within a CartProvider');

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import './CategoryFilter.css';
 
+// CategoryFilter fetches categories and reports selected values back to BooksPage.
 function CategoryFilter({
   selectedCategories,
   setSelectedCategories,
@@ -9,6 +10,8 @@ function CategoryFilter({
   setSelectedCategories: (categories: string[]) => void;
 }) {
   const [categories, setCategories] = useState<string[]>([]);
+
+  // Load available categories once when the filter mounts.
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -28,6 +31,7 @@ function CategoryFilter({
   }, []);
 
   function handleCheckboxChange({ target }: { target: HTMLInputElement }) {
+    // Toggle category membership and push the latest list to the parent page.
     const updatedCategories = selectedCategories.includes(target.value)
       ? selectedCategories.filter((x) => x !== target.value)
       : [...selectedCategories, target.value];
