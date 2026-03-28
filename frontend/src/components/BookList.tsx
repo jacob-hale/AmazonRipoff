@@ -1,47 +1,120 @@
 import { useEffect, useState } from 'react';
-import type { Book } from './types/Books';
+import type { Book } from '../types/Books';
+import { useCart } from '../context/CartContext';
 
-function BookList() {
+const LIST_STATE_STORAGE_KEY = 'amazonRipoffBookListState';
+
+// BookList handles catalog fetching, pagination, and add-to-cart actions.
+function BookList({
+  selectedCategories,
+  sortByTitle,
+  pageSize,
+  onAddToCart,
+}: {
+  selectedCategories: string[];
+  sortByTitle: boolean;
+  pageSize: number;
+  onAddToCart: (title: string) => void;
+}) {
+  const { addToCart } = useCart();
+
+  // Restore the last viewed page so users can keep browsing where they left off.
+  const getStoredState = () => {
+    if (typeof window === 'undefined') {
+      return null;
+    }
+
+    const storedState = window.sessionStorage.getItem(LIST_STATE_STORAGE_KEY);
+    if (!storedState) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(storedState) as {
+        pageNum?: number;
+      };
+    } catch {
+      return null;
+    }
+  };
+
+  const initialState = getStoredState();
+
   // Local UI/query state used to request and render paged book results.
   const [books, setBooks] = useState<Book[]>([]);
-  const [pageSize, setPageSize] = useState<number>(5);
-  const [pageNum, setPageNum] = useState<number>(1);
+  const [pageNum, setPageNum] = useState<number>(initialState?.pageNum ?? 1);
+  const [previousPageSize, setPreviousPageSize] = useState<number>(pageSize);
   const [totalItems, setTotalItems] = useState<number>(0);
   const [totalPages, setTotalPages] = useState<number>(0);
-  const [sortByTitle, setSortByTitle] = useState<boolean>(false);
+
+  useEffect(() => {
+    // Reset paging when the requested page size changes.
+    if (pageSize !== previousPageSize) {
+      setPageNum(1);
+      setPreviousPageSize(pageSize);
+    }
+  }, [pageSize, previousPageSize]);
+
+  useEffect(() => {
+    // Persist current page number for smoother return navigation.
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    window.sessionStorage.setItem(
+      LIST_STATE_STORAGE_KEY,
+      JSON.stringify({ pageNum })
+    );
+  }, [pageNum]);
 
   useEffect(() => {
     // Refetch whenever paging/sorting inputs change so the view stays in sync.
+    const categoryParams = selectedCategories
+      .map((cat) => `categories=${encodeURIComponent(cat)}`)
+      .join('&');
+
     const fetchBooks = async () => {
       try {
         const response = await fetch(
-          `https://localhost:5000/Book/AllBooks?pageSize=${pageSize}&pageNum=${pageNum}&sortByTitle=${sortByTitle}`
+          `https://localhost:5000/Book/AllBooks?pageSize=${pageSize}&pageNum=${pageNum}&sortByTitle=${sortByTitle}${selectedCategories.length ? `&${categoryParams}` : ''}`
         );
         const data = await response.json();
         setBooks(data.books);
         setTotalItems(data.totalNumBooks);
         setTotalPages(Math.ceil(data.totalNumBooks / pageSize));
       } catch (error) {
-        console.error('Error fetching projects:', error);
+        console.error('Error fetching books:', error);
       }
     };
 
     fetchBooks();
-  }, [pageSize, pageNum, totalItems, sortByTitle]);
+  }, [pageSize, pageNum, sortByTitle, selectedCategories]);
+
+  const handleAddToCart = (book: Book) => {
+    // Add one copy and notify the page so it can show feedback.
+    addToCart({
+      bookId: book.bookID,
+      title: book.title,
+      unitPrice: book.price,
+    });
+    onAddToCart(book.title);
+  };
 
   return (
-    <div className="container py-4">
-      <div className="mx-auto" style={{ maxWidth: '960px' }}>
+    <div className="row g-3">
+      <div className="col-12">
         <h1 className="display-5 fw-bold mb-2" style={{ color: 'black' }}>
           Book List
         </h1>
         <p className="text-muted mb-4">
           Browse {totalItems} books from the catalog
         </p>
+      </div>
 
-        {/* Render each book as a Bootstrap card for quick scanning. */}
-        {books.map((b) => (
-          <div key={b.bookID} className="card shadow-sm border-0 mb-3">
+      {/* Render each book as a Bootstrap card for quick scanning. */}
+      {books.map((b) => (
+        <div key={b.bookID} className="col-12">
+          <div className="card shadow-sm border-0">
             <div className="card-body">
               <h2 className="h4 card-title mb-3 d-flex justify-content-between align-items-center">
                 <span>{b.title}</span>
@@ -69,12 +142,22 @@ function BookList() {
                   <strong>Page Count:</strong> {b.pageCount}
                 </li>
               </ul>
+              <div className="mt-3 text-end">
+                <button
+                  className="btn btn-success"
+                  onClick={() => handleAddToCart(b)}
+                >
+                  Add to Cart
+                </button>
+              </div>
             </div>
           </div>
-        ))}
+        </div>
+      ))}
 
-        {/* Pagination controls map 1..totalPages into numbered buttons. */}
-        <nav aria-label="Book pagination" className="my-4">
+      {/* Pagination controls map 1..totalPages into numbered buttons. */}
+      <div className="col-12">
+        <nav aria-label="Book pagination" className="my-2">
           <ul className="pagination justify-content-center flex-wrap gap-1">
             <li className={`page-item ${pageNum === 1 ? 'disabled' : ''}`}>
               <button
@@ -112,39 +195,6 @@ function BookList() {
             </li>
           </ul>
         </nav>
-
-        {/* Query controls that drive server-side filtering and page size. */}
-        <div className="card border-0 shadow-sm">
-          <div className="card-body d-flex flex-column flex-md-row align-items-md-center gap-3">
-            <label className="form-label mb-0 d-flex flex-column gap-1">
-              <span className="small text-muted">Results per page</span>
-              <select
-                className="form-select"
-                value={pageSize}
-                onChange={(e) => {
-                  setPageSize(Number(e.target.value));
-                  setPageNum(1); // Reset to first page when page size changes
-                }}
-              >
-                <option value="5">5</option>
-                <option value="10">10</option>
-                <option value="20">20</option>
-              </select>
-            </label>
-            <label className="form-check form-switch m-0 ms-md-2">
-              <input
-                className="form-check-input"
-                type="checkbox"
-                checked={sortByTitle}
-                onChange={(e) => {
-                  setSortByTitle(e.target.checked);
-                  setPageNum(1); // Reset to page 1 when sorting changes
-                }}
-              />
-              <span className="form-check-label">Sort by Title</span>
-            </label>
-          </div>
-        </div>
       </div>
     </div>
   );
