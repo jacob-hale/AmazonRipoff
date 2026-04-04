@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { Book } from '../types/Books';
+import { fetchBooks } from '../api/BooksAPI';
 import { useCart } from '../context/CartContext';
 
 const LIST_STATE_STORAGE_KEY = 'amazonRipoffBookListState';
@@ -68,17 +69,15 @@ function BookList({
   }, [pageNum]);
 
   useEffect(() => {
-    // Refetch whenever paging/sorting inputs change so the view stays in sync.
-    const categoryParams = selectedCategories
-      .map((cat) => `categories=${encodeURIComponent(cat)}`)
-      .join('&');
-
-    const fetchBooks = async () => {
+    const loadBooks = async () => {
       try {
-        const response = await fetch(
-          `https://localhost:5000/Book/AllBooks?pageSize=${pageSize}&pageNum=${pageNum}&sortByTitle=${sortByTitle}${selectedCategories.length ? `&${categoryParams}` : ''}`
+        // Shared API module (same base URL and query string as `BookController.AllBooks`).
+        const data = await fetchBooks(
+          pageSize,
+          pageNum,
+          sortByTitle,
+          selectedCategories
         );
-        const data = await response.json();
         setBooks(data.books);
         setTotalItems(data.totalNumBooks);
         setTotalPages(Math.ceil(data.totalNumBooks / pageSize));
@@ -87,7 +86,7 @@ function BookList({
       }
     };
 
-    fetchBooks();
+    loadBooks();
   }, [pageSize, pageNum, sortByTitle, selectedCategories]);
 
   const handleAddToCart = (book: Book) => {
