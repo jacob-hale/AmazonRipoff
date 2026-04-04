@@ -1,6 +1,6 @@
 import '../App.css';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import WelcomeBand from '../components/WelcomeBand';
 import CategoryFilter from '../components/CategoryFilter';
 import BookList from '../components/BookList';
@@ -87,6 +87,16 @@ function BooksPage() {
       <div className="row mb-3">
         <div className="col-12 bg-primary text-white rounded-3 py-2">
           <WelcomeBand />
+        </div>
+      </div>
+      <div className="row mb-3">
+        <div className="col-12 d-flex justify-content-end">
+          <Link
+            to="/adminbooks"
+            className="btn btn-outline-primary btn-sm"
+          >
+            Manage Books
+          </Link>
         </div>
       </div>
       <div className="row g-3 align-items-start">

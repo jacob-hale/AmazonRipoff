@@ -25,8 +25,11 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-// Frontend dev server origin.
-app.UseCors(x => x.WithOrigins("http://localhost:3000"));
+// Frontend dev server origin. JSON POST/PUT send a preflight that must allow Content-Type.
+app.UseCors(x =>
+    x.WithOrigins("http://localhost:3000")
+        .AllowAnyHeader()
+        .AllowAnyMethod());
 
 app.UseHttpsRedirection();
 

@@ -1,6 +1,7 @@
 import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import BooksPage from './pages/BooksPage';
+import AdminBooksPage from './pages/AdminBooksPage';
 import CartPage from './pages/CartPage';
 import ConfirmAddToCart from './pages/ConfirmAddToCart';
 import { CartProvider } from './context/CartContext';
@@ -15,6 +16,8 @@ function App() {
           <Routes>
             <Route path="/" element={<BooksPage />} />
             <Route path="/books" element={<BooksPage />} />
+            {/* Deep links need `public/routes.json` on static hosting so `/adminbooks` serves the SPA. */}
+            <Route path="/adminbooks" element={<AdminBooksPage />} />
             <Route path="/cart" element={<CartPage />} />
             <Route path="/confirm-add/:bookId" element={<ConfirmAddToCart />} />
           </Routes>
