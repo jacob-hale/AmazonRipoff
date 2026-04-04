@@ -27,7 +27,8 @@ if (app.Environment.IsDevelopment())
 
 // Frontend dev server origin. JSON POST/PUT send a preflight that must allow Content-Type.
 app.UseCors(x =>
-    x.WithOrigins("http://localhost:3000")
+    x.WithOrigins("http://localhost:3000",
+    "https://jolly-rock-0e964e01e.7.azurestaticapps.net")
         .AllowAnyHeader()
         .AllowAnyMethod());
 
