@@ -30,6 +30,20 @@ function CategoryFilter({
     fetchCategories();
   }, []);
 
+  useEffect(() => {
+    if (categories.length === 0) {
+      return;
+    }
+
+    const validSelections = selectedCategories.filter((category) =>
+      categories.includes(category)
+    );
+
+    if (validSelections.length !== selectedCategories.length) {
+      setSelectedCategories(validSelections);
+    }
+  }, [categories, selectedCategories, setSelectedCategories]);
+
   function handleCheckboxChange({ target }: { target: HTMLInputElement }) {
     // Toggle category membership and push the latest list to the parent page.
     const updatedCategories = selectedCategories.includes(target.value)
