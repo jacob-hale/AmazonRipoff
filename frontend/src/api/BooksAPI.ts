@@ -11,7 +11,7 @@ interface FetchBooksResponse {
   totalNumBooks: number;
 }
 
-const API_BASE_URL = 'https://localhost:5000/Book';
+const API_BASE_URL = 'https://amazonripoff-hale-backend-afddh6achcc9e5a9.francecentral-01.azurewebsites.net/book';
 
 /** Loads one page of books; optional category filters and title sort match `AllBooks` query params. */
 export const fetchBooks = async (

@@ -17,7 +17,7 @@ function CategoryFilter({
       try {
         // Simulate an API call to fetch categories
         const response = await fetch(
-          'https://localhost:5000/Book/GetBookCategories'
+          'https://amazonripoff-hale-backend-afddh6achcc9e5a9.francecentral-01.azurewebsites.net/Book/GetBookCategories'
         );
         const data = await response.json();
         console.log('Fetched categories:', data);
