@@ -32,7 +32,11 @@ function BooksPage() {
 
     try {
       const parsedCategories = JSON.parse(storedCategories) as string[];
-      return Array.isArray(parsedCategories) ? parsedCategories : [];
+      return Array.isArray(parsedCategories)
+        ? parsedCategories
+            .map((category) => category.trim())
+            .filter((category) => category.length > 0)
+        : [];
     } catch {
       return [];
     }
@@ -91,10 +95,7 @@ function BooksPage() {
       </div>
       <div className="row mb-3">
         <div className="col-12 d-flex justify-content-end">
-          <Link
-            to="/adminbooks"
-            className="btn btn-outline-primary btn-sm"
-          >
+          <Link to="/adminbooks" className="btn btn-outline-primary btn-sm">
             Manage Books
           </Link>
         </div>

@@ -21,11 +21,15 @@ export const fetchBooks = async (
   selectedCategories: string[]
 ): Promise<FetchBooksResponse> => {
   try {
-    const categoryParams = selectedCategories
+    const normalizedCategories = selectedCategories
+      .map((cat) => cat.trim())
+      .filter((cat) => cat.length > 0);
+
+    const categoryParams = normalizedCategories
       .map((cat) => `categories=${encodeURIComponent(cat)}`)
       .join('&');
     const response = await fetch(
-      `${API_BASE_URL}/AllBooks?pageSize=${pageSize}&pageNum=${pageNum}&sortByTitle=${sortByTitle}${selectedCategories.length ? `&${categoryParams}` : ''}`
+      `${API_BASE_URL}/AllBooks?pageSize=${pageSize}&pageNum=${pageNum}&sortByTitle=${sortByTitle}${normalizedCategories.length ? `&${categoryParams}` : ''}`
     );
 
     if (!response.ok) {
